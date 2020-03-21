@@ -3,6 +3,7 @@ const { Router } = require("express");
 const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
+const Homepage = require("../models/").homepage;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -17,7 +18,7 @@ router.post("/login", async (req, res, next) => {
         .send({ message: "Please provide both email and password" });
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email }, include: Homepage });
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(400).send({
@@ -48,10 +49,14 @@ router.post("/signup", async (req, res) => {
     });
 
     delete newUser.dataValues["password"]; // don't send back the password hash
-
     const token = toJWT({ userId: newUser.id });
 
-    res.status(201).json({ token, ...newUser.dataValues });
+    const homepage = await Homepage.create({
+      name: `${newUser.title}'s page`,
+      userId: newUser.id
+    });
+
+    res.status(201).json({ token, ...newUser.dataValues, homepage });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
       return res
@@ -67,9 +72,10 @@ router.post("/signup", async (req, res) => {
 // - get the users email & name using only their token
 // - checking if a token is (still) valid
 router.get("/me", authMiddleware, async (req, res) => {
+  const homepage = await Homepage.findOne({ where: { userId: req.user.id } });
   // don't send back the password hash
   delete req.user.dataValues["password"];
-  res.status(200).send({ ...req.user.dataValues });
+  res.status(200).send({ ...req.user.dataValues, homepage });
 });
 
 module.exports = router;
