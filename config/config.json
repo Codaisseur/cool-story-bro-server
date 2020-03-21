@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
     "password": "secret",
-    "database": "YOUR_PROJECT_NAME_HERE_development",
+    "database": "cool_story_bro_development",
     "host": "localhost",
     "dialect": "postgres",
     "operatorsAliases": "0"
