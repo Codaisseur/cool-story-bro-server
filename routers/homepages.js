@@ -50,4 +50,15 @@ router.post("/:id/stories", auth, async (req, res) => {
   return res.status(201).send({ message: "Story created", story });
 });
 
+router.get("/", async (req, res) => {
+  const limit = req.query.limit || 10;
+  const offset = req.query.offset || 0;
+  const homepages = await Homepage.findAndCountAll({
+    limit,
+    offset,
+    include: [Story]
+  });
+  res.status(200).send({ message: "ok", homepages });
+});
+
 module.exports = router;
