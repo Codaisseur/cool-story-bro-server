@@ -23,7 +23,8 @@ router.post("/login", async (req, res, next) => {
       where: { email },
       include: {
         model: Homepage,
-        include: [Story]
+        include: [Story],
+        order: [[Story, "createdAt", "DESC"]]
       }
     });
 
@@ -59,7 +60,7 @@ router.post("/signup", async (req, res) => {
     const token = toJWT({ userId: newUser.id });
 
     const homepage = await Homepage.create({
-      name: `${newUser.title}'s page`,
+      title: `${newUser.name}'s page`,
       userId: newUser.id
     });
 
@@ -67,7 +68,7 @@ router.post("/signup", async (req, res) => {
       token,
       ...newUser.dataValues,
       homepage: {
-        ...homepage,
+        ...homepage.dataValues,
         stories: []
       }
     });
@@ -77,6 +78,8 @@ router.post("/signup", async (req, res) => {
         .status(400)
         .send({ message: "There is an existing account with this email" });
     }
+
+    console.log(error);
 
     return res.status(400).send({ message: "Something went wrong, sorry" });
   }
@@ -88,7 +91,8 @@ router.post("/signup", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   const homepage = await Homepage.findOne({
     where: { userId: req.user.id },
-    include: [Story]
+    include: [Story],
+    order: [[Story, "createdAt", "DESC"]]
   });
   // don't send back the password hash
   delete req.user.dataValues["password"];

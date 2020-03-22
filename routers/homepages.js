@@ -56,7 +56,8 @@ router.get("/", async (req, res) => {
   const homepages = await Homepage.findAndCountAll({
     limit,
     offset,
-    include: [Story]
+    include: [Story],
+    order: [[Story, "createdAt", "DESC"]]
   });
   res.status(200).send({ message: "ok", homepages });
 });
@@ -69,7 +70,10 @@ router.get("/:id", async (req, res) => {
     return res.status(400).send({ message: "Homepage id is not a number" });
   }
 
-  const homepage = await Homepage.findByPk(id, { include: [Story] });
+  const homepage = await Homepage.findByPk(id, {
+    include: [Story],
+    order: [[Story, "createdAt", "DESC"]]
+  });
 
   if (homepage === null) {
     return res.status(404).send({ message: "Homepage not found" });
