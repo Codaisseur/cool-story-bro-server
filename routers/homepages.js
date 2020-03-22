@@ -61,4 +61,21 @@ router.get("/", async (req, res) => {
   res.status(200).send({ message: "ok", homepages });
 });
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  console.log(id);
+  if (isNaN(parseInt(id))) {
+    return res.status(400).send({ message: "Homepage id is not a number" });
+  }
+
+  const homepage = await Homepage.findByPk(id, { include: [Story] });
+
+  if (homepage === null) {
+    return res.status(404).send({ message: "Homepage not found" });
+  }
+
+  res.status(200).send({ message: "ok", homepage });
+});
+
 module.exports = router;
