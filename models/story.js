@@ -1,19 +1,30 @@
 "use strict";
+
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  const story = sequelize.define(
-    "story",
+  class story extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      story.belongsTo(models.homepage);
+    }
+  }
+  story.init(
     {
       name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       imageUrl: DataTypes.STRING,
-      content: DataTypes.TEXT
+      content: DataTypes.TEXT,
     },
-    {}
+    {
+      sequelize,
+      modelName: "story",
+    }
   );
-  story.associate = function(models) {
-    story.belongsTo(models.homepage);
-  };
   return story;
 };

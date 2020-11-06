@@ -4,14 +4,14 @@ const User = require("../models").user;
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const user1 = await User.findOne({
-      where: { email: "test@test.com" }
+      where: { email: "test@test.com" },
     });
 
     const user2 = await User.findOne({
-      where: { email: "dummy@dummy.com" }
+      where: { email: "dummy@dummy.com" },
     });
 
-    return queryInterface.bulkInsert(
+    await queryInterface.bulkInsert(
       "homepages",
       [
         {
@@ -19,7 +19,7 @@ module.exports = {
           description: "A tell all tale",
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: user1.id
+          userId: user1.id,
         },
         {
           title: "I am a dummy",
@@ -27,14 +27,14 @@ module.exports = {
           color: "#EDEDED",
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: user2.id
-        }
+          userId: user2.id,
+        },
       ],
       {}
     );
   },
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.bulkDelete("homepages", null, {});
-  }
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete("homepages", null, {});
+  },
 };

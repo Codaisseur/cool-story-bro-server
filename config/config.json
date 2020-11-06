@@ -1,9 +1,6 @@
 {
   "development": {
-    "username": "postgres",
-    "password": "secret",
-    "database": "cool_story_bro_development",
-    "host": "localhost",
+    "url": "postgres://jryayetr:secret@hattie.db.elephantsql.com:5432/jryayetr",
     "dialect": "postgres",
     "operatorsAliases": "0"
   },
