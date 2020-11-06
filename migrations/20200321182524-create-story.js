@@ -18,10 +18,10 @@ module.exports = {
       content: {
         type: Sequelize.TEXT
       },
-      homepageId: {
+      spaceId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "homepages",
+          model: "spaces",
           key: "id"
         },
         onUpdate: "CASCADE",

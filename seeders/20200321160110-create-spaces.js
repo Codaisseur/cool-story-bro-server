@@ -12,7 +12,7 @@ module.exports = {
     });
 
     await queryInterface.bulkInsert(
-      "homepages",
+      "spaces",
       [
         {
           title: "My time at Codaisseur",
@@ -35,6 +35,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete("homepages", null, {});
+    await queryInterface.bulkDelete("spaces", null, {});
   },
 };

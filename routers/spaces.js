@@ -1,37 +1,37 @@
 const { Router } = require("express");
 const auth = require("../auth/middleware");
-const Homepage = require("../models").homepage;
+const Space = require("../models").space;
 const Story = require("../models").story;
 
 const router = new Router();
 
 router.patch("/:id", auth, async (req, res) => {
-  const homepage = await Homepage.findByPk(req.params.id);
-  if (!homepage.userId === req.user.id) {
+  const space = await Space.findByPk(req.params.id);
+  if (!space.userId === req.user.id) {
     return res
       .status(403)
-      .send({ message: "You are not authorized to update this homepage" });
+      .send({ message: "You are not authorized to update this space" });
   }
 
   const { title, description, backgroundColor, color } = req.body;
 
-  await homepage.update({ title, description, backgroundColor, color });
+  await space.update({ title, description, backgroundColor, color });
 
-  return res.status(200).send({ homepage });
+  return res.status(200).send({ space });
 });
 
 router.post("/:id/stories", auth, async (req, res) => {
-  const homepage = await Homepage.findByPk(req.params.id);
-  console.log(homepage);
+  const space = await Space.findByPk(req.params.id);
+  console.log(space);
 
-  if (homepage === null) {
-    return res.status(404).send({ message: "This homepage does not exist" });
+  if (space === null) {
+    return res.status(404).send({ message: "This space does not exist" });
   }
 
-  if (!homepage.userId === req.user.id) {
+  if (!space.userId === req.user.id) {
     return res
       .status(403)
-      .send({ message: "You are not authorized to update this homepage" });
+      .send({ message: "You are not authorized to update this space" });
   }
 
   const { name, imageUrl, content } = req.body;
@@ -44,7 +44,7 @@ router.post("/:id/stories", auth, async (req, res) => {
     name,
     imageUrl,
     content,
-    homepageId: homepage.id
+    spaceId: space.id
   });
 
   return res.status(201).send({ message: "Story created", story });
@@ -53,13 +53,13 @@ router.post("/:id/stories", auth, async (req, res) => {
 router.get("/", async (req, res) => {
   const limit = req.query.limit || 10;
   const offset = req.query.offset || 0;
-  const homepages = await Homepage.findAndCountAll({
+  const spaces = await Space.findAndCountAll({
     limit,
     offset,
     include: [Story],
     order: [[Story, "createdAt", "DESC"]]
   });
-  res.status(200).send({ message: "ok", homepages });
+  res.status(200).send({ message: "ok", spaces });
 });
 
 router.get("/:id", async (req, res) => {
@@ -67,19 +67,19 @@ router.get("/:id", async (req, res) => {
 
   console.log(id);
   if (isNaN(parseInt(id))) {
-    return res.status(400).send({ message: "Homepage id is not a number" });
+    return res.status(400).send({ message: "Space id is not a number" });
   }
 
-  const homepage = await Homepage.findByPk(id, {
+  const space = await Space.findByPk(id, {
     include: [Story],
     order: [[Story, "createdAt", "DESC"]]
   });
 
-  if (homepage === null) {
-    return res.status(404).send({ message: "Homepage not found" });
+  if (space === null) {
+    return res.status(404).send({ message: "Space not found" });
   }
 
-  res.status(200).send({ message: "ok", homepage });
+  res.status(200).send({ message: "ok", space });
 });
 
 module.exports = router;
