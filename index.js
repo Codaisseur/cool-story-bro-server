@@ -60,8 +60,8 @@ app.use(bodyParserMiddleWare);
  *
  */
 
-const corsMiddleWare = require("cors");
-app.use(corsMiddleWare());
+const cors = require("cors");
+app.use(cors());
 
 /**
  *
@@ -106,8 +106,8 @@ app.get("/", (req, res) => {
 app.post("/echo", (req, res) => {
   res.json({
     youPosted: {
-      ...req.body
-    }
+      ...req.body,
+    },
   });
 });
 
@@ -120,11 +120,11 @@ app.post("/authorized_post_request", authMiddleWare, (req, res) => {
 
   res.json({
     youPosted: {
-      ...req.body
+      ...req.body,
     },
     userFoundWithToken: {
-      ...user.dataValues
-    }
+      ...user.dataValues,
+    },
   });
 });
 
