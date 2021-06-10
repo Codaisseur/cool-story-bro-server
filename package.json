@@ -25,8 +25,8 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
-    "pg": "^7.18.2",
-    "sequelize": "^6.3.5",
+    "pg": "^8.6.0",
+    "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
