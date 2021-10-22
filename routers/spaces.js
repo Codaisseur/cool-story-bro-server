@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const Space = require("../models").space;
 const Story = require("../models").story;
+const authMiddleware = require("../auth/middleware");
 
 const router = new Router();
 
@@ -34,6 +35,32 @@ router.get("/:id", async (req, res) => {
   }
 
   res.status(200).send({ message: "ok", space });
+});
+
+router.delete("/story/:id", async (req, res, next) => {
+  // DELETE = /story/2
+  try {
+    const id = req.params.id;
+
+    const story = await Story.findByPk(id);
+
+    await story.destroy();
+
+    res.send({ message: "success", storyId: id });
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/story", authMiddleware, async (req, res, next) => {
+  try {
+    const { title, content, spaceId } = req.body;
+    // console.log("creating a story", { title, content, spaceId });
+    const story = await Story.create({ name: title, content, spaceId }); // spaceId
+    res.send(story);
+  } catch (e) {
+    next(e);
+  }
 });
 
 module.exports = router;

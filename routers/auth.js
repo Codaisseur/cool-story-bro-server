@@ -21,7 +21,15 @@ router.post("/login", async (req, res, next) => {
 
     const user = await User.findOne({
       where: { email },
+      include: [{ model: Space, include: [Story] }],
     });
+
+    // const user = {
+    //   email,
+    //   password,
+    //   name,
+    //   space
+    // } // include
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(400).send({
@@ -51,12 +59,25 @@ router.post("/signup", async (req, res) => {
       name,
     });
 
+    //   - title: `<MyName>'s space`
+    // - description: null
+    // - backgroundColor: #ffffff (white)
+    // - color: #000000 (black)
+
+    const newSpace = await Space.create({
+      title: `${name}'s space`,
+      backgroundColor: "#ffffff",
+      color: "#000000",
+      userId: newUser.id,
+    });
+
     delete newUser.dataValues["password"]; // don't send back the password hash
     const token = toJWT({ userId: newUser.id });
 
     res.status(201).json({
       token,
       ...newUser.dataValues,
+      space: newSpace,
     });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
@@ -76,8 +97,14 @@ router.post("/signup", async (req, res) => {
 // - checking if a token is (still) valid
 router.get("/me", authMiddleware, async (req, res) => {
   // don't send back the password hash
+  // User.findByPk
+  const space = await Space.findOne({
+    where: { userId: req.user.id },
+    include: [{ model: Story }],
+  });
+
   delete req.user.dataValues["password"];
-  res.status(200).send({ ...req.user.dataValues });
+  res.status(200).send({ ...req.user.dataValues, space: space });
 });
 
 module.exports = router;
