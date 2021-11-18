@@ -5,6 +5,7 @@ const Story = require("../models").story;
 
 const router = new Router();
 
+// PATCH - update space details
 router.patch("/:id", auth, async (req, res) => {
   const space = await Space.findByPk(req.params.id);
   if (!space.userId === req.user.id) {
@@ -20,6 +21,7 @@ router.patch("/:id", auth, async (req, res) => {
   return res.status(200).send({ space });
 });
 
+// POST a new story to space with corresponding `id`
 router.post("/:id/stories", auth, async (req, res) => {
   const space = await Space.findByPk(req.params.id);
   console.log(space);
@@ -44,12 +46,13 @@ router.post("/:id/stories", auth, async (req, res) => {
     name,
     imageUrl,
     content,
-    spaceId: space.id
+    spaceId: space.id,
   });
 
   return res.status(201).send({ message: "Story created", story });
 });
 
+// Get all spaces
 router.get("/", async (req, res) => {
   const limit = req.query.limit || 10;
   const offset = req.query.offset || 0;
@@ -57,11 +60,12 @@ router.get("/", async (req, res) => {
     limit,
     offset,
     include: [Story],
-    order: [[Story, "createdAt", "DESC"]]
+    order: [[Story, "createdAt", "DESC"]],
   });
   res.status(200).send({ message: "ok", spaces });
 });
 
+// GET space with stories by id.
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -72,7 +76,7 @@ router.get("/:id", async (req, res) => {
 
   const space = await Space.findByPk(id, {
     include: [Story],
-    order: [[Story, "createdAt", "DESC"]]
+    order: [[Story, "createdAt", "DESC"]],
   });
 
   if (space === null) {
@@ -80,6 +84,28 @@ router.get("/:id", async (req, res) => {
   }
 
   res.status(200).send({ message: "ok", space });
+});
+
+router.delete("/:spaceId/stories/:storyId", auth, async (req, res, next) => {
+  try {
+    const { spaceId, storyId } = req.params;
+    const story = await Story.findByPk(storyId, { include: [Space] });
+    if (!story) {
+      return res.status(404).send("Story not found");
+    }
+
+    // Check if this user is the owner of the space
+    if (story.space.userId !== req.user.id) {
+      return res.status(401).send("You're not authorized to delete this story");
+    }
+
+    await story.destroy();
+
+    res.send({ message: "ok", storyId });
+
+  } catch (e) {
+    next(e)
+  }
 });
 
 module.exports = router;
