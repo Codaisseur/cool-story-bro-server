@@ -1,6 +1,6 @@
 {
   "development": {
-    "url": "postgres://pnmnsahd:DFjjxccR4bRosnZvBq4kFzmHyXZTS0Dk@hattie.db.elephantsql.com/pnmnsahd"
+    "url": "postgres://nyikxlnd:7zXnbxM7bUr8seNBHm4DpNv0dwG4C3yM@abul.db.elephantsql.com/nyikxlnd"
   },
   "test": {
     "username": "root",
@@ -11,11 +11,11 @@
     "operatorsAliases": "0"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "postgres",
-    "operatorsAliases": "0"
+    "use_env_variable": "DATABASE_URL",
+    "dialectOptions": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    }
   }
 }
