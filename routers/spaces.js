@@ -86,4 +86,21 @@ router.get("/:id", async (req, res) => {
   res.status(200).send({ message: "ok", space });
 });
 
+router.delete("/story/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const storyToDelete = await Story.findByPk(id);
+
+    if (!storyToDelete) return res.status(404).send("no story found");
+
+    await storyToDelete.destroy();
+
+    // look at delete status
+    // should we send something?
+    res.send({ message: "story deleted!" });
+  } catch (e) {
+    console.log(e.message);
+  }
+});
+
 module.exports = router;
