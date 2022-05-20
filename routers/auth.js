@@ -3,8 +3,6 @@ const { Router } = require("express");
 const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
-const Space = require("../models/").space;
-const Story = require("../models/").story;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -19,14 +17,7 @@ router.post("/login", async (req, res, next) => {
         .send({ message: "Please provide both email and password" });
     }
 
-    const user = await User.findOne({
-      where: { email },
-      include: {
-        model: Space,
-        include: [Story],
-        order: [[Story, "createdAt", "DESC"]],
-      },
-    });
+    const user = await User.findOne({ where: { email } });
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(400).send({
@@ -59,18 +50,9 @@ router.post("/signup", async (req, res) => {
     delete newUser.dataValues["password"]; // don't send back the password hash
     const token = toJWT({ userId: newUser.id });
 
-    const space = await Space.create({
-      title: `${newUser.name}'s space`,
-      userId: newUser.id,
-    });
-
     res.status(201).json({
       token,
       user: newUser.dataValues,
-      space: {
-        ...space.dataValues,
-        stories: [],
-      },
     });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
@@ -89,14 +71,9 @@ router.post("/signup", async (req, res) => {
 // - get the users email & name using only their token
 // - checking if a token is (still) valid
 router.get("/me", authMiddleware, async (req, res) => {
-  const space = await Space.findOne({
-    where: { userId: req.user.id },
-    include: [Story],
-    order: [[Story, "createdAt", "DESC"]],
-  });
   // don't send back the password hash
   delete req.user.dataValues["password"];
-  res.status(200).send({ user: req.user.dataValues, space });
+  res.status(200).send({ user: req.user.dataValues });
 });
 
 module.exports = router;
